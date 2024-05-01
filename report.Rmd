@@ -1,0 +1,151 @@
+---
+title: "DATA550-Final Project-Lung Cancer Prediction Analysis"
+author: "Qiang Liu"
+geometry: "left=2cm,right=2cm,top=2cm,bottom=2cm"
+date: "`r Sys.Date()`"
+output:
+    html_document: 
+      latex_engine: xelatex
+      toc: true
+      toc_depth: 2
+---
+
+```{r install packages, include=FALSE}
+options(repos = c(CRAN = "https://cloud.r-project.org"))
+install.packages("vtable")
+install.packages("broom")
+install.packages("ggplot2")
+install.packages("dplyr")
+install.packages("kableExtra")
+```
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(
+  echo = TRUE, warning = FALSE, message = FALSE
+)
+```
+
+\newpage
+
+# Introduction
+The dataset I will use names "Lung Cancer Prediction" from Kaggle.
+
+This dataset contains information on patients with lung cancer, including their age, gender, air pollution exposure, alcohol use, dust allergy, occupational hazards, genetic risk, chronic lung disease, balanced diet, obesity, smoking, passive smoker, chest pain, coughing of blood, fatigue, weight loss ,shortness of breath ,wheezing ,swallowing difficulty ,clubbing of finger nails and snoring.
+
+My analysis objectives would include:
+
+- predicting the likelihood of a patient developing lung cancer
+- identifying risk factors for lung cancer
+- determining the most effective treatment for a patient with lung cancer
+
+\newpage
+
+# Load Data
+```{r data loading}
+# Load data and check the first 5 rows
+here::i_am("report.Rmd")
+cancer_data <- read.delim("data/cancer patient data sets.csv",sep=",")
+head(cancer_data)
+```
+
+\newpage
+
+# Exploratory data analysis
+## Summary statistics tables
+```{r tables}
+library(vtable)
+table1 <- readRDS(
+  file = here::here("output/Summary_Statistics_Table.rds")
+)
+kable(table1)
+```
+
+\newpage
+
+### Summary statistics description
+The table provides summary statistics for various variables in the dataset, encompassing data from 1000 patients. For each variable, the table includes the number of observations (N), mean, standard deviation (Std. Dev.), minimum value (Min), 25th percentile (Pctl. 25), 75th percentile (Pctl. 75), and maximum value (Max).
+
+_Age_: The average age of the patients is 37 years, with a standard deviation of 12 years. The ages range from 14 to 73 years, indicating a wide variety of age groups in the dataset.
+
+_Gender_: This is a categorical variable, with a mean value of 1.4. Since gender is likely coded as 1 and 2, the mean suggests a slightly higher representation of the category coded as 2 (possibly female, if 1 is male and 2 is female).
+
+_Air Pollution, Alcohol use, Dust Allergy, Occupational Hazards, Genetic Risk, Chronic Lung Disease, Balanced Diet, Obesity, Smoking, Passive Smoker, Chest Pain, Coughing of Blood, Fatigue, Weight Loss, Shortness of Breath, Wheezing, Swallowing Difficulty, Clubbing of Finger Nails, Frequent Cold, Dry Cough, and Snoring_: These variables, likely measured on a similar scale, show a range of mean values mostly between 3 and 5, indicating moderate levels on average for these factors. The standard deviations are generally around 2, suggesting moderate variability in responses.
+
+_Level_: This variable categorizes the patients into three levels: High, Low, and Medium. Out of 1000 patients, 365 are categorized as High (36%), 303 as Low (30%), and 332 as Medium (33%). This suggests a relatively even distribution across these categories.
+
+This comprehensive table provides a valuable overview of the dataset, highlighting the diverse range of variables and their distributions among the patients. It sets a foundational understanding for further analysis, particularly in exploring relationships between these variables and lung cancer outcomes.
+
+\newpage
+
+## Regression model table
+```{r regression}
+table2 <- readRDS(
+  file = here::here("output/Regression_Model_Table.rds")
+)
+table2
+```
+
+\newpage
+
+### Regression statistics description
+The regression analysis summary table presents the outcomes of a linear regression model, examining the relationship between chronic lung disease and several predictors: Age, Gender, Air Pollution, Smoking, and Obesity. The table includes the estimated coefficients (estimate), their standard errors (std.error), t-statistics (statistic), and p-values (p.value) for each predictor, as well as the intercept.
+
+_Intercept_: The intercept has an estimated value of 1.1579434. This represents the expected level of chronic lung disease when all other predictors are held at zero. The intercept is statistically significant (p < 0.001), suggesting that even without the influence of the predictors, the baseline level of chronic lung disease is significantly different from zero.
+
+_Age_: The coefficient for Age is 0.0095874, indicating a slight increase in the level of chronic lung disease with each additional year of age. This effect is statistically significant (p = 0.0048779), suggesting that older age is associated with a higher level of chronic lung disease.
+
+_Gender_: The estimated coefficient for Gender is -0.0827606. However, this predictor is not statistically significant (p = 0.3356360), indicating that within this model, gender does not have a significant impact on the level of chronic lung disease.
+
+_Air Pollution_: With an estimated coefficient of 0.2878508, air pollution shows a significant positive association with the level of chronic lung disease (p < 0.001). This suggests that higher levels of air pollution are associated with an increase in the level of chronic lung disease.
+
+_Smoking_: The coefficient for Smoking is 0.2125603, and it is statistically significant (p < 0.001). This indicates a significant positive relationship between smoking and the level of chronic lung disease.
+
+_Obesity_: Similarly, Obesity has a coefficient of 0.2322847, which is statistically significant (p < 0.001). This suggests that obesity is positively associated with the level of chronic lung disease.
+
+In conclusion, the regression analysis indicates that Age, Air Pollution, Smoking, and Obesity are significant predictors of chronic lung disease, with each contributing to an increase in its level. Gender, on the other hand, does not appear to have a significant effect in this model. This analysis provides valuable insights into the factors that are associated with chronic lung disease, highlighting the importance of environmental and lifestyle factors.
+
+\newpage
+
+## Figures
+### Age Distribution of Patients
+```{r}
+knitr::include_graphics(
+  here::here("output/Age_Distribution.png")
+)
+```
+
+This histogram illustrates the age distribution of the patients in the dataset. The x-axis represents age groups, while the y-axis shows the count of patients in each age group. The bin width of 5 years allows for a clear visualization of the age distribution. This graph is instrumental in understanding the age range and the most common ages of patients in the study.
+
+\newpage
+
+### Gender Distribution of Patients
+```{r}
+knitr::include_graphics(
+  here::here("output/Gender_Distribution.png")
+)
+```
+
+This bar chart displays the gender distribution of patients in the dataset. Each bar represents a gender category, and the height of the bar indicates the count of patients in each category. This visualization is crucial for assessing the proportion of male and female patients and understanding how gender distribution might impact the analysis.
+
+\newpage
+
+### Smoking by Gender
+```{r}
+knitr::include_graphics(
+  here::here("output/Smoking_by_Gender.png")
+)
+```
+
+This boxplot shows the distribution of smoking levels among patients, segmented by gender. The y-axis represents the smoking level, and each box corresponds to a gender. The boxplot provides insights into the central tendency and variability of smoking habits among different genders. It can be particularly useful for identifying outliers and understanding how smoking behavior varies between male and female patients.
+
+\newpage
+
+### Chronic Lung Cancer by Age
+```{r}
+knitr::include_graphics(
+  here::here("output/Chronic_Lung_Cancer_by_Age.png")
+)
+```
+
+This scatter plot explores the relationship between age and the level of chronic lung disease. Each point represents a patient, with their age on the x-axis and the level of chronic lung disease on the y-axis. The distribution of points can help identify any patterns or trends, such as whether older patients tend to have higher levels of chronic lung disease. This graph is valuable for examining potential correlations between age and lung health.
